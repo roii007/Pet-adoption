@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.ApplicationMapper">
+
+    <resultMap id="applicationMap" type="Application">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="petId" column="pet_id"/>
+        <result property="applicantName" column="applicant_name"/>
+        <result property="applicantPhone" column="applicant_phone"/>
+        <result property="applicantAddress" column="applicant_address"/>
+        <result property="houseType" column="house_type"/>
+        <result property="hasExperience" column="has_experience"/>
+        <result property="reason" column="reason"/>
+        <result property="status" column="status"/>
+        <result property="reviewerId" column="reviewer_id"/>
+        <result property="reviewComment" column="review_comment"/>
+        <result property="reviewedAt" column="reviewed_at"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findById" resultMap="applicationMap">
+        SELECT * FROM application WHERE id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="applicationMap">
+        SELECT * FROM application ORDER BY id DESC
+    </select>
+
+    <select id="findByUserId" resultMap="applicationMap">
+        SELECT * FROM application WHERE user_id = #{userId} ORDER BY id DESC
+    </select>
+
+    <select id="findByPetId" resultMap="applicationMap">
+        SELECT * FROM application WHERE pet_id = #{petId}
+    </select>
+
+    <select id="findByStatus" resultMap="applicationMap">
+        SELECT * FROM application WHERE status = #{status}
+    </select>
+
+    <select id="findPendingApplication" resultMap="applicationMap">
+        SELECT * FROM application
+        WHERE user_id = #{userId} AND pet_id = #{petId}
+          AND status IN ('pending', '待审核')
+        LIMIT 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO application (user_id, pet_id, applicant_name, applicant_phone,
+                                applicant_address, house_type, has_experience, reason, status)
+        VALUES (#{userId}, #{petId}, #{applicantName}, #{applicantPhone},
+                #{applicantAddress}, #{houseType}, #{hasExperience}, #{reason}, #{status})
+    </insert>
+
+    <update id="update">
+        UPDATE application SET status = #{status}, reviewer_id = #{reviewerId},
+        review_comment = #{reviewComment}, reviewed_at = #{reviewedAt}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE application SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM application WHERE id = #{id}
+    </delete>
+
+    <select id="countByStatus" resultType="int">
+        SELECT COUNT(*) FROM application WHERE status = #{status}
+    </select>
+
+</mapper>

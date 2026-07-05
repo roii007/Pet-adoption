@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>宠物领养系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-router@3.5.3/dist/vue-router.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.27.2/dist/axios.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', '微软雅黑', 'PingFang SC', 'Helvetica Neue', sans-serif; background-color: #f5f5f5; }
+        .navbar { margin-bottom: 20px; background: white !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .card { margin-bottom: 20px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: none; border-radius: 12px; overflow: hidden; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; }
+        .btn-primary:hover { background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%); transform: translateY(-1px); }
+        .badge-warning { background-color: #ff9800; color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; }
+        .badge-success { background-color: #4caf50; color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; }
+        .badge-danger { background-color: #f44336; color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; }
+        .badge-info { background-color: #2196f3; color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; }
+        .badge-secondary { background-color: #6c757d; color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; }
+        .bg-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+        .sidebar { min-height: 100vh; background: #2c3e50; }
+        .flex-1 { flex: 1; }
+        .text-4xl { font-size: 3rem; }
+        .py-10 { padding: 80px 0; }
+        .ml-2 { margin-left: 10px; }
+        .ml-3 { margin-left: 15px; }
+        .mt-2 { margin-top: 10px; }
+        .mt-4 { margin-top: 20px; }
+        .mt-5 { margin-top: 30px; }
+        .mb-2 { margin-bottom: 10px; }
+        .mb-3 { margin-bottom: 15px; }
+        .mb-4 { margin-bottom: 20px; }
+        .p-4 { padding: 20px; }
+        .d-flex { display: flex; }
+        .d-block { display: block; }
+        .text-white { color: white; }
+        .text-center { text-align: center; }
+        .text-muted { color: #6c757d; }
+        .justify-content-center { justify-content: center; }
+        .justify-content-between { justify-content: space-between; }
+        .btn-link { color: white; text-decoration: none; }
+        .btn-link:hover { color: #ddd; }
+        .form-group { margin-bottom: 15px; }
+        .form-control { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; transition: border-color 0.2s; }
+        .form-control:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        .radio-inline { margin-right: 20px; }
+        .btn-block { width: 100%; }
+        .table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+        .table th, .table td { padding: 12px 15px; border-bottom: 1px solid #eee; text-align: left; }
+        .table th { background: #f8f9fa; font-weight: 600; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+        .col-md-3, .col-md-4, .col-md-6, .col-md-8, .col-md-9 { padding: 0 15px; }
+        .row { display: flex; flex-wrap: wrap; margin: 0 -15px; }
+        [class*="col-md-"] { box-sizing: border-box; }
+        .col-md-3 { width: 25%; }
+        .col-md-4 { width: 33.333%; }
+        .col-md-6 { width: 50%; }
+        .col-md-8 { width: 66.666%; }
+        .col-md-9 { width: 75%; }
+        @media (max-width: 768px) {
+            .col-md-3, .col-md-4, .col-md-6, .col-md-8, .col-md-9 { width: 100%; }
+            .d-flex { flex-direction: column; }
+        }
+        .modal { display: block; background: rgba(0,0,0,0.5); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; }
+        .modal-dialog { margin: 100px auto; max-width: 500px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+        .pet-image { width: 100%; height: 200px; object-fit: cover; background: #f0f0f0; }
+        .upload-area { border: 2px dashed #ddd; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .upload-area:hover { border-color: #667eea; background: #f8f9ff; }
+        .preview-image { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin: 5px; }
+        .image-list { display: flex; flex-wrap: wrap; margin-top: 10px; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <router-view></router-view>
+</div>
+
+<!-- 公共导航栏模板 -->
+<script type="text/x-template" id="navbar-template">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#/" style="font-weight: bold; font-size: 1.5rem;">🐾 宠物领养</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/pets">全部宠物</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <template v-if="currentUser">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#/my-applications">我的申请</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#/profile">个人中心</a>
+                        </li>
+                        <li v-if="currentUser.role === 'admin'" class="nav-item">
+                            <a class="nav-link" href="#/admin">管理后台</a>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-link nav-link" @click="logout" style="color: #666;">退出</button>
+                        </li>
+                    </template>
+                    <template v-else>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#/login">登录</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#/register">注册</a>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</script>
+
+<!-- 确认弹窗组件 -->
+<script type="text/x-template" id="confirm-dialog-template">
+    <div class="modal" tabindex="-1" role="dialog" v-if="visible" @click.self="cancel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="border-radius: 12px;">
+                <div class="modal-header" style="border-bottom: none;">
+                    <h5 class="modal-title">{{ title }}</h5>
+                    <button type="button" class="close" @click="cancel">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ message }}</p>
+                </div>
+                <div class="modal-footer" style="border-top: none;">
+                    <button type="button" class="btn btn-secondary" @click="cancel">取消</button>
+                    <button type="button" class="btn btn-primary" @click="confirm">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script>
+    // API 基础配置
+    const API_BASE_URL = '/api';
+
+    const api = axios.create({
+        baseURL: API_BASE_URL,
+        timeout: 30000,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    api.interceptors.request.use(
+        config => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                config.headers['Authorization'] = 'Bearer ' + token;
+            }
+            return config;
+        },
+        error => Promise.reject(error)
+    );
+
+    api.interceptors.response.use(
+        response => response,
+        error => {
+            if (error.response && error.response.status === 401) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/#/login';
+            }
+            return Promise.reject(error);
+        }
+    );
+
+    // 领养申请状态工具（统一英文码，避免中文编码导致乱码和按钮失效）
+    Vue.mixin({
+        methods: {
+            normalizeAppStatus(status) {
+                if (!status) return 'pending';
+                const value = String(status).trim().toLowerCase();
+                if (value === 'pending' || value === '待审核') return 'pending';
+                if (value === 'approved' || value === '通过') return 'approved';
+                if (value === 'rejected' || value === '拒绝') return 'rejected';
+                if (value === 'cancelled' || value === '已取消') return 'cancelled';
+                return 'pending';
+            },
+            getAppStatusText(status) {
+                const map = {
+                    pending: '待审核',
+                    approved: '通过',
+                    rejected: '拒绝',
+                    cancelled: '已取消'
+                };
+                return map[this.normalizeAppStatus(status)] || '待审核';
+            },
+            getAppStatusClass(status) {
+                const map = {
+                    pending: 'badge badge-warning',
+                    approved: 'badge badge-success',
+                    rejected: 'badge badge-danger',
+                    cancelled: 'badge badge-secondary'
+                };
+                return map[this.normalizeAppStatus(status)] || 'badge badge-secondary';
+            },
+            isAppPending(status) {
+                return this.normalizeAppStatus(status) === 'pending';
+            },
+            isAppRejected(status) {
+                return this.normalizeAppStatus(status) === 'rejected';
+            }
+        }
+    });
+
+    // API 封装
+    const userApi = {
+        login: (data) => api.post('/user/login', data),
+        register: (data) => api.post('/user/register', data),
+        getInfo: () => api.get('/user/info'),
+        update: (data) => api.put('/user/update', data),
+        logout: () => api.post('/user/logout'),
+        getAllUsers: () => api.get('/admin/users'),
+        updateStatus: (id, status) => api.put(`/admin/users/${id}/status`, { status }),
+        deleteUser: (id) => api.delete(`/admin/users/${id}`)
+    };
+
+    const petApi = {
+        getAll: (params) => api.get('/pets', { params }),
+        getAllAdmin: () => api.get('/admin/pets'),
+        getById: (id) => api.get(`/pets/${id}`),
+        create: (data) => api.post('/admin/pets', data),
+        update: (id, data) => api.put(`/admin/pets/${id}`, data),
+        delete: (id) => api.delete(`/admin/pets/${id}`),
+        updateStatus: (id, status) => api.put(`/admin/pets/${id}/status`, { status })
+    };
+
+    const applicationApi = {
+        create: (data) => api.post('/applications', data),
+        getByUser: () => api.get('/applications/my'),
+        getAll: () => api.get('/admin/applications'),
+        getById: (id) => api.get(`/applications/${id}`),
+        updateStatus: (id, status, comment) => api.put(`/admin/applications/${id}/status`, { status, comment }),
+        cancel: (id) => api.put(`/applications/${id}/cancel`)
+    };
+
+    window.$api = {
+        user: userApi,
+        pet: petApi,
+        application: applicationApi
+    };
+
+    window.$user = {
+        get: () => JSON.parse(localStorage.getItem('user') || 'null'),
+        set: (user) => localStorage.setItem('user', JSON.stringify(user)),
+        clear: () => {
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+        },
+        isAdmin: () => {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            return user && user.role === 'admin';
+        }
+    };
+
+    // 注册公共组件
+    Vue.component('app-navbar', {
+        template: '#navbar-template',
+        data() {
+            return {
+                currentUser: $user.get()
+            };
+        },
+        created() {
+            window.addEventListener('user-changed', () => {
+                this.currentUser = $user.get();
+            });
+        },
+        methods: {
+            logout() {
+                $api.user.logout().then(() => {
+                    $user.clear();
+                    window.dispatchEvent(new Event('user-changed'));
+                    window.location.hash = '/';
+                    window.location.reload();
+                }).catch(() => {
+                    $user.clear();
+                    window.dispatchEvent(new Event('user-changed'));
+                    window.location.hash = '/';
+                    window.location.reload();
+                });
+            }
+        }
+    });
+
+    Vue.component('confirm-dialog', {
+        template: '#confirm-dialog-template',
+        props: {
+            title: { type: String, default: '确认操作' },
+            message: { type: String, required: true }
+        },
+        data() {
+            return { visible: false, resolve: null };
+        },
+        methods: {
+            open() {
+                this.visible = true;
+                return new Promise((resolve) => {
+                    this.resolve = resolve;
+                });
+            },
+            confirm() {
+                this.visible = false;
+                this.resolve && this.resolve(true);
+            },
+            cancel() {
+                this.visible = false;
+                this.resolve && this.resolve(false);
+            }
+        }
+    });
+
+    // 首页组件
+    const Home = {
+        template: `
+            <div>
+                <app-navbar></app-navbar>
+                <div class="container">
+                    <div class="bg-gradient text-center">
+                        <h1 class="display-4" style="font-size: 3rem;">欢迎来到宠物领养中心</h1>
+                        <p class="lead" style="font-size: 1.2rem; opacity: 0.9;">给流浪宠物一个温暖的家，让爱不再流浪</p>
+                        <a class="btn btn-light btn-lg" href="#/pets" style="border-radius: 50px; padding: 12px 30px;">浏览宠物</a>
+                    </div>
+                    <div class="row mt-5">
+                        <div class="col-md-4">
+                            <div class="card text-center" style="padding: 20px;">
+                                <div style="font-size: 4rem;">🐕</div>
+                                <h5 style="margin-top: 10px;">狗狗领养</h5>
+                                <p class="text-muted">忠诚可爱的狗狗等待您的关爱</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center" style="padding: 20px;">
+                                <div style="font-size: 4rem;">🐱</div>
+                                <h5 style="margin-top: 10px;">猫咪领养</h5>
+                                <p class="text-muted">温顺粘人的猫咪期待您的陪伴</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center" style="padding: 20px;">
+                                <div style="font-size: 4rem;">🐰</div>
+                                <h5 style="margin-top: 10px;">小宠领养</h5>
+                                <p class="text-muted">萌萌的小宠需要您的呵护</p>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="mt-5" style="margin-bottom: 20px;">热门宠物</h3>
+                    <div class="row">
+                        <div v-for="pet in pets" :key="pet.id" class="col-md-3">
+                            <div class="card" @click="$router.push('/pet/' + pet.id)" style="cursor: pointer;">
+                                <img v-if="getFirstImage(pet.imageUrls)" :src="getFirstImage(pet.imageUrls)" class="pet-image" alt="宠物图片">
+                                <div v-else class="pet-image d-flex align-items-center justify-content-center" style="background: #e0e0e0;">
+                                    <span style="font-size: 3rem;">🐾</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5>{{ pet.name }}</h5>
+                                    <p class="text-muted">{{ pet.type }} · {{ pet.breed }}</p>
+                                    <p class="text-muted">{{ formatAge(pet.age) }} · {{ pet.gender }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        data() {
+            return { pets: [] };
+        },
+        created() {
+            $api.pet.getAll({ status: '上架' }).then(res => {
+                this.pets = (res.data || []).slice(0, 4);
+            }).catch(err => console.error(err));
+        },
+        methods: {
+            getFirstImage(urls) {
+                if (!urls) return null;
+                try {
+                    const arr = JSON.parse(urls);
+                    return arr && arr.length > 0 ? arr[0] : null;
+                } catch(e) {
+                    return null;
+                }
+            },
+            formatAge(age) {
+                if (!age) return '未知';
+                if (age < 12) return age + '个月';
+                return Math.floor(age / 12) + '岁' + (age % 12 > 0 ? age % 12 + '个月' : '');
+            }
+        }
+    };
+
+    // 登录组件
+    const Login = {
+        template: `
+            <div class="container">
+                <div class="row justify-content-center mt-5">
+                    <div class="col-md-4">
+                        <div class="card" style="border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                            <div class="card-header" style="background: transparent; border-bottom: none; text-align: center; padding-top: 30px;">
+                                <h3 style="color: #333;">🐾 用户登录</h3>
+                            </div>
+                            <div class="card-body" style="padding: 30px;">
+                                <form @submit.prevent="login">
+                                    <div class="form-group">
+                                        <label>用户名</label>
+                                        <input type="text" v-model="form.username" class="form-control" placeholder="请输入用户名" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>密码</label>
+                                        <input type="password" v-model="form.password" class="form-control" placeholder="请输入密码" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-block" :disabled="loading" style="border-radius: 8px; padding: 12px;">登录</button>
+                                </form>
+                                <p class="text-center mt-3">还没有账号？<a href="#/register">立即注册</a></p>
+                                <p class="text-center text-muted" style="font-size: 12px;">管理员账号：admin / 123456</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        data() {
+            return { form: { username: '', password: '' }, loading: false };
+        },
+        methods: {
+            login() {
+                this.loading = true;
+                $api.user.login(this.form).then(res => {
+                    localStorage.setItem('token', res.data.token);
+                    $user.set(res.data.user);
+                    window.dispatchEvent(new Event('user-changed'));
+                    window.location.hash = '/';
+                    window.location.reload();
+                }).catch(err => {
+                    alert(err.response?.data?.message || '登录失败');
+                }).finally(() => {
+                    this.loading = false;
+                });
+            }
+        }
+    };
+
+    // 注册组件
+    const Register = {
+        template: `
+            <div class="container">
+                <div class="row justify-content-center mt-5">
+                    <div class="col-md-4">
+                        <div class="card" style="border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                            <div class="card-header" style="background: transparent; border-bottom: none; text-align: center; padding-top: 30px;">
+                                <h3 style="color: #333;">🐾 用户注册</h3>
+                            </div>
+                            <div class="card-body" style="padding: 30px;">
+                                <form @submit.prevent="register">
+                                    <div class="form-group">
+                                        <label>用户名</label>
+                                        <input type="text" v-model="form.username" class="form-control" placeholder="请输入用户名" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>密码</label>
+                                        <input type="password" v-model="form.password" class="form-control" placeholder="请输入密码" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>确认密码</label>
+                                        <input type="password" v-model="form.confirmPassword" class="form-control" placeholder="请再次输入密码" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>邮箱</label>
+                                        <input type="email" v-model="form.email" class="form-control" placeholder="请输入邮箱" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-block" :disabled="loading" style="border-radius: 8px; padding: 12px;">注册</button>
+                                </form>
+                                <p class="text-center mt-3">已有账号？<a href="#/login">立即登录</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        data() {
+            return { form: { username: '', password: '', confirmPassword: '', email: '' }, loading: false };
+        },
+        methods: {
+            register() {
+                if (this.form.password !== this.form.confirmPassword) {
+                    alert('两次输入的密码不一致');
+                    return;
+                }
+                this.loading = true;
+                $api.user.register(this.form).then(() => {
+                    alert('注册成功，请登录');
+                    window.location.hash = '/login';
+                }).catch(err => {
+                    alert(err.response?.data?.message || '注册失败');
+                }).finally(() => {
+                    this.loading = false;
+                });
+            }
+        }
+    };
+
+    // 宠物列表组件
+    const PetList = {
+        template: `
+            <div>
+                <app-navbar></app-navbar>
+                <div class="container">
+                    <div class="row mt-4">
+                        <div class="col-md-3">
+                            <div class="card" style="border-radius: 12px;">
+                                <div class="card-header" style="background: transparent; font-weight: 600;">筛选条件</div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>宠物类型</label>
+                                        <select v-model="filters.type" class="form-control">
+                                            <option value="">全部</option>
+                                            <option value="狗">狗</option>
+                                            <option value="猫">猫</option>
+                                            <option value="兔">兔</option>
+                                            <option value="其他">其他</option>
+                                        </select>
+                                    </div>
+                                    <button @click="search" class="btn btn-primary btn-block" style="border-radius: 8px;">搜索</button>
+                                    <button @click="reset" class="btn btn-secondary btn-block mt-2" style="border-radius: 8px;">重置</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div v-for="pet in pets" :key="pet.id" class="col-md-4">
+                                    <div class="card" @click="$router.push('/pet/' + pet.id)" style="cursor: pointer;">
+                                        <img v-if="getFirstImage(pet.imageUrls)" :src="getFirstImage(pet.imageUrls)" class="pet-image" alt="宠物图片">
+                                        <div v-else class="pet-image d-flex align-items-center justify-content-center" style="background: #e0e0e0;">
+                                            <span style="font-size: 3rem;">🐾</span>
+                                        </div>
+                                        <div class="card-body">
+                                            <h5>{{ pet.name }}</h5>
+                                            <p class="text-muted">{{ pet.type }} · {{ pet.breed }}</p>
+                                            <p class="text-muted">{{ formatAge(pet.age) }} · {{ pet.gender }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="pets.length === 0" class="text-center py-10">
+                                <p class="text-muted">暂无符合条件的宠物</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        data() {
+            return { pets: [], filters: { type: '' } };
+        },
+        created() { this.search(); },
+        methods: {
+            search() {
+                const params = { status: '上架' };
+                if (this.filters.type) params.type = this.filters.type;
+                $api.pet.getAll(params).then(res => { this.pets = res.data || []; }).catch(err => console.error(err));
+            },
+            reset() { this.filters = { type: '' }; this.search(); },
+            getFirstImage(urls) {
+                if (!urls) return null;
+                try {
+                    const arr = JSON.parse(urls);
+                    return arr && arr.length > 0 ? arr[0] : null;
+                } catch(e) { return null; }
+            },
+            formatAge(age) {
+                if (!age) return '未知';
+                if (age < 12) return age + '个月';
+                return Math.floor(age / 12) + '岁' + (age % 12 > 0 ? age % 12 + '个月' : '');
+            }
+        }
+    };
+
+    // 宠物详情组件
+    const PetDetail = {
+        template: `
+            <div>
+                <app-navbar></app-navbar>
+                <div class="container mt-4">
+                    <div class="row" v-if="pet">
+                        <div class="col-md-8">
+                            <div class="card" style="border-radius: 12px;">
+                                <div class="card-body">
+                                    <h1>{{ pet.name }}</h1>
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <p><strong>品种：</strong>{{ pet.breed || '未知' }}</p>
+                                            <p><strong>年龄：</strong>{{ formatAge(pet.age) }}</p>
+                                            <p><strong>性别：</strong>{{ pet.gender || '未知' }}</p>
+                                            <p><strong>颜色：</strong>{{ pet.color || '未知' }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>体重：</strong>{{ pet.weight ? pet.weight + 'kg' : '未知' }}</p>
+                                            <p><strong>健康状况：</strong>{{ pet.healthStatus || '良好' }}</p>
+                                            <p><strong>是否疫苗：</strong>{{ pet.vaccination === 1 ? '是' : '否' }}</p>
+                                        </div>
+                                    </div>
+                                    <p><strong>描述：</strong>{{ pet.description || '暂无描述' }}</p>
+                                    <div v-if="pet.imageUrls && getImages(pet.imageUrls).length > 0" class="mt-3">
+                                        <strong>宠物图片：</strong>
+                                        <div class="image-list">
+                                            <img v-for="(img, idx) in getImages(pet.imageUrls)" :key="idx" :src="img" class="preview-image">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card" style="border-radius: 12px;">
+                                <div class="card-header" style="background: transparent; font-weight: 600;">领养操作</div>
+                                <div class="card-body">
+                                    <button @click="apply" class="btn btn-primary btn-block" style="border-radius: 8px;" :disabled="pet.status !== '上架'">申请领养</button>
+                                    <p class="text-muted mt-2 text-center" v-if="pet.status !== '上架'">该宠物已暂不可领养</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        data() { return { pet: null }; },
+        created() {
+            const id = this.$route.params.id;
+            $api.pet.getById(id).then(res => { this.pet = res.data; }).catch(err => console.error(err));
+        },
+        methods: {
+            apply() {
+                if (!$user.get()) { window.location.hash = '/login'; }
+                else { window.location.hash = '/apply/' + this.pet.id; }
+            },
+            getImages(urls) {
+                if (!urls) return [];
+                try { return JSON.parse(urls); }
+                catch(e) { return []; }
+            },
+            formatAge(age) {
+                if (!age) return '未知';
+                if (age < 12) return age + '个月';
+                return Math.floor(age / 12) + '岁' + (age % 12 > 0 ? age % 12 + '个月' : '');
+            }
+        }
+    };
+
+    // 申请表单组件
+    const Apply = {
+        template: `
+            <div>
+                <app-navbar></app-navbar>
+                <div class="container mt-4">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="card" style="border-radius: 12px;">
+                                <div class="card-header" style="background: transparent;">
+                                    <h3>申请领养 - {{ pet?.name }}</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form @submit.prevent="submitApplication">
+                                        <div class="form-group">
+                                            <label>申请人姓名</label>
+                                            <input type="text" v-model="form.applicantName" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>联系电话</label>
+                                            <input type="tel" v-model="form.applicantPhone" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>家庭地址</label>
+                                            <input type="text" v-model="form.applicantAddress" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>住房类型</label>
+                                            <select v-model="form.houseType" class="form-control">
+                                                <option value="自有住房">自有住房</option>
+                                                <option value="租房">租房</option>
+                                                <option value="其他">其他</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>养宠经验</label>
+                                            <div>
+                                                <label class="radio-inline"><input type="radio" v-model="form.hasExperience" :value="1"> 有</label>
+                                                <label class="radio-inline"><input type="radio" v-model="form.hasExperience" :value="0"> 无</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>领养理由</label>
+                                            <textarea v-model="form.reason" class="form-control" rows="4" required placeholder="请告诉我们您为什么想要领养这只宠物"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-block" :disabled="loading" style="border-radius: 8px; padding: 12px;">提交申请</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        data() {
+            return {
+                pet: null,
+                form: { applicantName: '', applicantPhone: '', applicantAddress: '', houseType: '自有住房', hasExperience: 0, reason: '' },
+                loading: false
+            };
+        },
+        created() { this.loadPet(); },
+        methods: {
+            loadPet() {
+                $api.pet.getById(this.$route.params.petId).then(res => { this.pet = res.data; }).catch(err => console.error(err));
+            },
+            submitApplication() {
+                this.loading = true;
+                $api.application.create({ petId: parseInt(this.$route.params.petId), ...this.form }).then(() => {
+                    alert('申请提交成功，等待审核');
+                    window.location.hash = '/my-applications';
+                }).catch(err => { alert(err.response?.data?.message || '提交失败'); }).finally(() => { this.loading = false; });
+            }
+        }
+    };
+
+    // 我的申请组件
+    const MyApplications = {
+        template: `
+            <div>
+                <app-navbar></app-navbar>
+                <div class="container mt-4">
+                    <h2>我的领养申请</h2>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr><th>宠物名称</th><th>申请时间</th><th>状态</th><th>操作</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="app in applications" :key="app.id">
+                                <td>{{ app.petName }}</td>
+                                <td>{{ formatDate(app.createdAt) }}</td>
+                                <td><span :class="getAppStatusClass(app.status)">{{ getAppStatusText(app.status) }}</span></td>
+                                <td>
+                                    <button v-if="isAppPending(app.status)" @click="cancelApplication(app.id)" class="btn btn-sm btn-danger">取消申请</button>
+                                    <span v-if="isAppRejected(app.status)" class="text-danger">拒绝理由: {{ app.reviewComment }}</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-if="applications.length === 0" class="text-center py-10">
+                        <p class="text-muted">暂无申请记录</p>
+                    </div>
+                </div>
+            </div>
+        `,
+        data() { return { applications: [] }; },
+        created() { this.loadApplications(); },
+        methods: {
+            loadApplications() { $api.application.getByUser().then(res => { this.applications = res.data || []; }).catch(err => console.error(err)); },
+            cancelApplication(id) { if (confirm('确定要取消申请吗？')) { $api.application.cancel(id).then(() => this.loadApplications()).catch(err => alert('取消失败')); } },
+            formatDate(date) {
+                if (!date) return '';
+                return new Date(date).toLocaleString('zh-CN');
+            }
+        }
+    };
+
+    // 个人资料组件
+    const Profile = {
+        template: `
+            <div>
+                <app-navbar></app-navbar>
+                <div class="container mt-4">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="card" style="border-radius: 12px;">
+                                <div class="card-header" style="background: transparent;">
+                                    <h3>个人信息</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form @submit.prevent="updateProfile">
+                                        <div class="form-group">
+                                            <label>用户名</label>
+                                            <input type="text" v-model="form.username" class="form-control" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>邮箱</label>
+                                            <input type="email" v-model="form.email" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>手机号</label>
+                                            <input type="tel" v-model="form.phone" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>新密码（留空表示不修改）</label>
+                                            <input type="password" v-model="form.password" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>确认密码</label>
+                                            <input type="password" v-model="form.confirmPassword" class="form-control">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-block" :disabled="loading" style="border-radius: 8px; padding: 12px;">保存修改</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        data() { return { form: { username: '', email: '', phone: '', password: '', confirmPassword: '' }, loading: false }; },
+        created() { this.loadUser(); },
+        methods: {
+            loadUser() {
+                const user = $user.get();
+                if (user) { this.form.username = user.username; this.form.email = user.email || ''; this.form.phone = user.phone || ''; }
+            },
+            updateProfile() {
+                if (this.form.password && this.form.password !== this.form.confirmPassword) { alert('两次输入的密码不一致'); return; }
+                this.loading = true;
+                const data = { email: this.form.email, phone: this.form.phone };
+                if (this.form.password) data.password = this.form.password;
+                $api.user.update(data).then(() => { alert('修改成功'); this.form.password = ''; this.form.confirmPassword = ''; }).catch(err => { alert(err.response?.data?.message || '修改失败'); }).finally(() => { this.loading = false; });
+            }
+        }
+    };
+
+    // 管理后台首页
+    const AdminIndex = {
+        template: `
+            <div class="d-flex">
+                <div class="sidebar text-white" style="width:260px;min-height:100vh;padding:1.5rem;">
+                    <h3 class="mb-4" style="font-size: 1.5rem;">🐾 管理后台</h3>
+                    <a href="#/admin" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">📊 首页</a>
+                    <a href="#/admin/users" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">👥 用户管理</a>
+                    <a href="#/admin/pets" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">🐕 宠物管理</a>
+                    <a href="#/admin/applications" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">📋 申请审核</a>
+                    <hr style="border-color: rgba(255,255,255,0.2);">
+                    <button class="btn btn-link text-white p-0" @click="logout" style="text-decoration: none;">🚪 退出登录</button>
+                </div>
+                <div class="flex-1 p-4">
+                    <h2>管理后台首页</h2>
+                    <p>欢迎回来，管理员！</p>
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card bg-primary text-white" style="border-radius: 12px;">
+                                <div class="card-body">
+                                    <h3>用户管理</h3>
+                                    <p>管理系统用户</p>
+                                    <a href="#/admin/users" class="btn btn-light" style="border-radius: 8px;">进入</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-success text-white" style="border-radius: 12px;">
+                                <div class="card-body">
+                                    <h3>宠物管理</h3>
+                                    <p>管理宠物信息</p>
+                                    <a href="#/admin/pets" class="btn btn-light" style="border-radius: 8px;">进入</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-warning text-white" style="border-radius: 12px;">
+                                <div class="card-body">
+                                    <h3>申请审核</h3>
+                                    <p>审核领养申请</p>
+                                    <a href="#/admin/applications" class="btn btn-light" style="border-radius: 8px;">进入</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        methods: { logout() { $api.user.logout().then(() => { $user.clear(); window.location.hash = '/login'; window.location.reload(); }); } }
+    };
+
+    // 用户管理组件
+    const AdminUsers = {
+        template: `
+            <div class="d-flex">
+                <div class="sidebar text-white" style="width:260px;min-height:100vh;padding:1.5rem;">
+                    <h3 class="mb-4" style="font-size: 1.5rem;">🐾 管理后台</h3>
+                    <a href="#/admin" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">📊 首页</a>
+                    <a href="#/admin/users" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">👥 用户管理</a>
+                    <a href="#/admin/pets" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">🐕 宠物管理</a>
+                    <a href="#/admin/applications" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">📋 申请审核</a>
+                    <hr style="border-color: rgba(255,255,255,0.2);">
+                    <button class="btn btn-link text-white p-0" @click="logout" style="text-decoration: none;">🚪 退出登录</button>
+                </div>
+                <div class="flex-1 p-4">
+                    <h2>用户管理</h2>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead><tr><th>ID</th><th>用户名</th><th>邮箱</th><th>角色</th><th>状态</th><th>操作</th></tr></thead>
+                            <tbody>
+                            <tr v-for="user in users" :key="user.id">
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.role === 'admin' ? '管理员' : '普通用户' }}</td>
+                                <td><span :class="user.status === 1 ? 'badge badge-success' : 'badge badge-danger'">{{ user.status === 1 ? '正常' : '禁用' }}</span></td>
+                                <td>
+                                    <button v-if="user.status === 1 && user.role !== 'admin'" @click="updateStatus(user.id,0)" class="btn btn-sm btn-warning">禁用</button>
+                                    <button v-else-if="user.role !== 'admin'" @click="updateStatus(user.id,1)" class="btn btn-sm btn-success">启用</button>
+                                    <button v-if="user.role !== 'admin'" @click="deleteUser(user.id)" class="btn btn-sm btn-danger ml-2">删除</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `,
+        data() { return { users: [] }; },
+        created() { this.loadUsers(); },
+        methods: {
+            loadUsers() { $api.user.getAllUsers().then(res => { this.users = res.data || []; }).catch(err => console.error(err)); },
+            updateStatus(id, status) { $api.user.updateStatus(id, status).then(() => this.loadUsers()).catch(err => alert('操作失败')); },
+            deleteUser(id) { if (confirm('确定要删除该用户吗？')) { $api.user.deleteUser(id).then(() => this.loadUsers()).catch(err => alert('删除失败')); } },
+            logout() { $api.user.logout().then(() => { $user.clear(); window.location.hash = '/login'; window.location.reload(); }); }
+        }
+    };
+
+    // 宠物管理组件
+    const AdminPets = {
+        template: `
+            <div class="d-flex">
+                <div class="sidebar text-white" style="width:260px;min-height:100vh;padding:1.5rem;">
+                    <h3 class="mb-4" style="font-size: 1.5rem;">🐾 管理后台</h3>
+                    <a href="#/admin" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">📊 首页</a>
+                    <a href="#/admin/users" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">👥 用户管理</a>
+                    <a href="#/admin/pets" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">🐕 宠物管理</a>
+                    <a href="#/admin/applications" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">📋 申请审核</a>
+                    <hr style="border-color: rgba(255,255,255,0.2);">
+                    <button class="btn btn-link text-white p-0" @click="logout" style="text-decoration: none;">🚪 退出登录</button>
+                </div>
+                <div class="flex-1 p-4">
+                    <div class="d-flex justify-content-between mb-4">
+                        <h2>宠物管理</h2>
+                        <button @click="createPet" class="btn btn-primary" style="border-radius: 8px;">+ 添加宠物</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead><tr><th>ID</th><th>图片</th><th>名称</th><th>类型</th><th>品种</th><th>状态</th><th>操作</th></tr></thead>
+                            <tbody>
+                            <tr v-for="pet in pets" :key="pet.id">
+                                <td>{{ pet.id }}</td>
+                                <td><img v-if="getFirstImage(pet.imageUrls)" :src="getFirstImage(pet.imageUrls)" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"></td>
+                                <td>{{ pet.name }}</td>
+                                <td>{{ pet.type }}</td>
+                                <td>{{ pet.breed }}</td>
+                                <td><span :class="getStatusClass(pet.status)">{{ pet.status }}</span></td>
+                                <td>
+                                    <button @click="editPet(pet.id)" class="btn btn-sm btn-primary">编辑</button>
+                                    <button v-if="pet.status === '上架'" @click="updateStatus(pet.id,'下架')" class="btn btn-sm btn-warning ml-2">下架</button>
+                                    <button v-if="pet.status === '下架'" @click="updateStatus(pet.id,'上架')" class="btn btn-sm btn-success ml-2">上架</button>
+                                    <button @click="deletePet(pet.id)" class="btn btn-sm btn-danger ml-2">删除</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `,
+        data() { return { pets: [] }; },
+        created() { this.loadPets(); },
+        methods: {
+            loadPets() { $api.pet.getAllAdmin().then(res => { this.pets = res.data || []; }).catch(err => console.error(err)); },
+            createPet() { window.location.hash = '/admin/pet-form'; },
+            editPet(id) { window.location.hash = '/admin/pet-form/' + id; },
+            updateStatus(id, status) {
+                $api.pet.updateStatus(id, status).then(() => {
+                    const pet = this.pets.find(p => p.id === id);
+                    if (pet) pet.status = status;
+                }).catch(err => alert('操作失败'));
+            },
+            deletePet(id) { if (confirm('确定要删除该宠物吗？')) { $api.pet.delete(id).then(() => this.loadPets()).catch(err => alert('删除失败')); } },
+            getStatusClass(status) { const map = { '上架': 'badge badge-success', '下架': 'badge badge-warning', '已领养': 'badge badge-info' }; return map[status] || 'badge badge-secondary'; },
+            getFirstImage(urls) {
+                if (!urls) return null;
+                try { const arr = JSON.parse(urls); return arr && arr.length > 0 ? arr[0] : null; }
+                catch(e) { return null; }
+            },
+            logout() { $api.user.logout().then(() => { $user.clear(); window.location.hash = '/login'; window.location.reload(); }); }
+        }
+    };
+
+    // 宠物表单组件（只保留本地图片选择）
+    const AdminPetForm = {
+        template: `
+            <div class="d-flex">
+                <div class="sidebar text-white" style="width:260px;min-height:100vh;padding:1.5rem;">
+                    <h3 class="mb-4" style="font-size: 1.5rem;">🐾 管理后台</h3>
+                    <a href="#/admin" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">📊 首页</a>
+                    <a href="#/admin/users" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">👥 用户管理</a>
+                    <a href="#/admin/pets" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">🐕 宠物管理</a>
+                    <a href="#/admin/applications" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">📋 申请审核</a>
+                    <hr style="border-color: rgba(255,255,255,0.2);">
+                    <button class="btn btn-link text-white p-0" @click="logout" style="text-decoration: none;">🚪 退出登录</button>
+                </div>
+                <div class="flex-1 p-4">
+                    <h2>{{ isEdit ? '编辑宠物' : '添加宠物' }}</h2>
+                    <div class="col-md-8">
+                        <form @submit.prevent="submitForm" class="mt-4">
+                            <div class="form-group"><label>宠物名称</label><input type="text" v-model="form.name" class="form-control" required></div>
+                            <div class="form-group"><label>类型</label><select v-model="form.type" class="form-control" required><option value="狗">狗</option><option value="猫">猫</option><option value="兔">兔</option><option value="其他">其他</option></select></div>
+                            <div class="form-group"><label>品种</label><input type="text" v-model="form.breed" class="form-control"></div>
+                            <div class="form-group"><label>年龄（月）</label><input type="number" v-model="form.age" class="form-control"></div>
+                            <div class="form-group"><label>性别</label><select v-model="form.gender" class="form-control"><option value="公">公</option><option value="母">母</option><option value="未知">未知</option></select></div>
+                            <div class="form-group"><label>颜色</label><input type="text" v-model="form.color" class="form-control"></div>
+                            <div class="form-group"><label>体重（kg）</label><input type="number" step="0.1" v-model="form.weight" class="form-control"></div>
+                            <div class="form-group"><label>健康状况</label><input type="text" v-model="form.healthStatus" class="form-control"></div>
+                            <div class="form-group"><label>是否疫苗</label><select v-model="form.vaccination" class="form-control"><option :value="1">是</option><option :value="0">否</option></select></div>
+                            <div class="form-group"><label>描述</label><textarea v-model="form.description" class="form-control" rows="3"></textarea></div>
+                            <div class="form-group">
+                                <label>宠物图片</label>
+                                <button type="button" @click="openImageSelector" class="btn btn-secondary" style="border-radius: 8px;">
+                                    📁 从本地选择图片
+                                </button>
+                                <div class="image-list mt-2">
+                                    <div v-for="(img, idx) in imageList" :key="idx" style="position: relative; display: inline-block; margin: 5px;">
+                                        <img :src="img" class="preview-image">
+                                        <button type="button" @click="removeImage(idx)" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; line-height: 20px; cursor: pointer;">×</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" :disabled="loading" style="border-radius: 8px; padding: 10px 30px;">保存</button>
+                            <button type="button" @click="cancel" class="btn btn-secondary ml-2" style="border-radius: 8px;">取消</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 图片选择器模态框 -->
+        <div class="modal" v-if="showImageSelector" @click.self="showImageSelector = false">
+        <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius: 12px;">
+        <div class="modal-header" style="border-bottom: none;">
+        <h5 class="modal-title">选择本地图片</h5>
+        <button type="button" class="close" @click="showImageSelector = false">
+        <span>&times;</span>
+        </button>
+        </div>
+        <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+        <div v-if="localImages.length === 0" class="text-center py-5">
+        <p class="text-muted">暂无图片，请将图片放入 D:/JavaEE期末项目/img/ 目录</p>
+        </div>
+        <div class="row">
+        <div v-for="img in localImages" :key="img.name" class="col-md-3 mb-3">
+        <div class="card" @click="selectImage(img.url)" style="cursor: pointer; transition: transform 0.2s;">
+        <img :src="img.url" class="card-img-top" style="height: 150px; object-fit: cover; border-radius: 8px 8px 0 0;">
+        <div class="card-body p-2">
+        <p class="card-text small" style="margin-bottom: 0;">{{ img.name.length > 20 ? img.name.substring(0, 20) + '...' : img.name }}</p>
+        <p class="card-text small text-muted">{{ img.size }}</p>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        <div class="modal-footer" style="border-top: none;">
+        <button type="button" class="btn btn-secondary" @click="showImageSelector = false">关闭</button>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        `,
+        data() {
+            return {
+                isEdit: false,
+                form: { name: '', type: '狗', breed: '', age: '', gender: '未知', color: '', weight: '', healthStatus: '', vaccination: 0, description: '', imageUrls: '[]' },
+                imageList: [],
+                loading: false,
+                showImageSelector: false,
+                localImages: []
+            };
+        },
+        created() {
+            const id = this.$route.params.id;
+            if (id) { this.isEdit = true; this.loadPet(id); }
+        },
+        methods: {
+            loadPet(id) {
+                $api.pet.getById(id).then(res => {
+                    const pet = res.data;
+                    Object.assign(this.form, pet);
+                    if (pet.imageUrls) {
+                        try { this.imageList = JSON.parse(pet.imageUrls); }
+                        catch(e) { this.imageList = []; }
+                    }
+                }).catch(err => console.error(err));
+            },
+            openImageSelector() {
+                this.showImageSelector = true;
+                this.loadLocalImages();
+            },
+            loadLocalImages() {
+                axios.get('/api/images/list').then(res => {
+                    this.localImages = res.data;
+                }).catch(err => {
+                    console.error('加载图片失败', err);
+                    alert('加载图片列表失败');
+                });
+            },
+            selectImage(imgUrl) {
+                if (!this.imageList.includes(imgUrl)) {
+                    this.imageList.push(imgUrl);
+                    this.form.imageUrls = JSON.stringify(this.imageList);
+                }
+                this.showImageSelector = false;
+            },
+            removeImage(idx) {
+                this.imageList.splice(idx, 1);
+                this.form.imageUrls = JSON.stringify(this.imageList);
+            },
+            submitForm() {
+                this.loading = true;
+                const data = { ...this.form, status: '上架' };
+                const promise = this.isEdit ? $api.pet.update(this.$route.params.id, data) : $api.pet.create(data);
+                promise.then(() => { window.location.hash = '/admin/pets'; }).catch(err => { alert('保存失败: ' + (err.response?.data?.message || err.message)); }).finally(() => { this.loading = false; });
+            },
+            cancel() { window.location.hash = '/admin/pets'; },
+            logout() { $api.user.logout().then(() => { $user.clear(); window.location.hash = '/login'; window.location.reload(); }); }
+        }
+    };
+
+    // 申请审核组件
+    const AdminApplications = {
+        template: `
+    <div class="d-flex">
+    <div class="sidebar text-white" style="width:260px;min-height:100vh;padding:1.5rem;">
+    <h3 class="mb-4" style="font-size: 1.5rem;">🐾 管理后台</h3>
+    <a href="#/admin" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">📊 首页</a>
+    <a href="#/admin/users" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">👥 用户管理</a>
+    <a href="#/admin/pets" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">🐕 宠物管理</a>
+    <a href="#/admin/applications" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">📋 申请审核</a>
+    <hr style="border-color: rgba(255,255,255,0.2);">
+    <button class="btn btn-link text-white p-0" @click="logout" style="text-decoration: none;">🚪 退出登录</button>
+    </div>
+    <div class="flex-1 p-4">
+    <h2>申请审核</h2>
+    <div class="table-responsive">
+    <table class="table table-striped">
+    <thead><tr><th>ID</th><th>申请人</th><th>宠物名称</th><th>申请时间</th><th>状态</th><th>操作</th></tr></thead>
+    <tbody>
+    <tr v-for="app in applications" :key="app.id">
+    <td>{{ app.id }}</td>
+    <td>{{ app.applicantName }}</td>
+    <td>{{ app.petName }}</td>
+    <td>{{ formatDate(app.createdAt) }}</td>
+    <td><span :class="getAppStatusClass(app.status)">{{ getAppStatusText(app.status) }}</span></td>
+    <td>
+    <button @click="viewDetail(app.id)" class="btn btn-sm btn-info">详情</button>
+    <template v-if="isAppPending(app.status)">
+    <button @click="approve(app.id)" class="btn btn-sm btn-success ml-2">通过</button>
+    <button @click="reject(app.id)" class="btn btn-sm btn-danger ml-2">拒绝</button>
+    </template>
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    </div>
+    <div v-if="applications.length === 0" class="text-center py-10"><p class="text-muted">暂无申请</p></div>
+    </div>
+    </div>
+    `,
+        data() { return { applications: [] }; },
+        created() { this.loadApplications(); },
+        methods: {
+            loadApplications() { $api.application.getAll().then(res => { this.applications = res.data || []; }).catch(err => console.error(err)); },
+            viewDetail(id) { window.location.hash = '/admin/application/' + id; },
+            approve(id) { if (confirm('确定要通过该申请吗？')) { $api.application.updateStatus(id, 'approved', '').then(() => this.loadApplications()).catch(err => alert('操作失败')); } },
+            reject(id) { const comment = prompt('请输入拒绝理由：'); if (comment && comment.trim()) { $api.application.updateStatus(id, 'rejected', comment).then(() => this.loadApplications()).catch(err => alert('操作失败')); } },
+            formatDate(date) { if (!date) return ''; return new Date(date).toLocaleString('zh-CN'); },
+            logout() { $api.user.logout().then(() => { $user.clear(); window.location.hash = '/login'; window.location.reload(); }); }
+        }
+    };
+
+    // 申请详情组件
+    const AdminApplicationDetail = {
+        template: `
+    <div class="d-flex">
+    <div class="sidebar text-white" style="width:260px;min-height:100vh;padding:1.5rem;">
+    <h3 class="mb-4" style="font-size: 1.5rem;">🐾 管理后台</h3>
+    <a href="#/admin" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">📊 首页</a>
+    <a href="#/admin/users" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">👥 用户管理</a>
+    <a href="#/admin/pets" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">🐕 宠物管理</a>
+    <a href="#/admin/applications" class="d-block text-white mb-3" style="text-decoration: none; opacity: 0.8;">📋 申请审核</a>
+    <hr style="border-color: rgba(255,255,255,0.2);">
+    <button class="btn btn-link text-white p-0" @click="logout" style="text-decoration: none;">🚪 退出登录</button>
+    </div>
+    <div class="flex-1 p-4">
+    <h2>申请详情</h2>
+    <div v-if="application" class="card mt-4" style="max-width:700px; border-radius: 12px;">
+    <div class="card-body">
+    <div class="mb-4">
+    <h4>申请信息</h4>
+    <p>申请ID: {{ application.id }}</p>
+    <p>状态: <span :class="getAppStatusClass(application.status)">{{ getAppStatusText(application.status) }}</span></p>
+    <p>申请时间: {{ formatDate(application.createdAt) }}</p>
+    </div>
+    <div class="mb-4">
+    <h4>申请人信息</h4>
+    <p>姓名: {{ application.applicantName }}</p>
+    <p>电话: {{ application.applicantPhone }}</p>
+    <p>地址: {{ application.applicantAddress }}</p>
+    <p>住房类型: {{ application.houseType }}</p>
+    <p>养宠经验: {{ application.hasExperience === 1 ? '有' : '无' }}</p>
+    </div>
+    <div class="mb-4">
+    <h4>申请宠物</h4>
+    <p>宠物名称: {{ application.petName }}</p>
+    </div>
+    <div class="mb-4">
+    <h4>领养理由</h4>
+    <p>{{ application.reason }}</p>
+    <p v-if="application.reviewComment" class="text-danger mt-2">拒绝理由: {{ application.reviewComment }}</p>
+    </div>
+    <div>
+    <button @click="goBack" class="btn btn-secondary" style="border-radius: 8px;">返回列表</button>
+    <template v-if="isAppPending(application.status)">
+    <button @click="approve" class="btn btn-success ml-2" style="border-radius: 8px;">通过申请</button>
+    <button @click="showRejectForm = true" class="btn btn-danger ml-2" style="border-radius: 8px;">拒绝申请</button>
+    </template>
+    </div>
+    <div v-if="showRejectForm" class="mt-4 p-4 bg-light" style="border-radius: 8px;">
+    <h5>拒绝理由</h5>
+    <textarea v-model="rejectComment" class="form-control" rows="3"></textarea>
+    <button @click="reject" class="btn btn-danger mt-2">确认拒绝</button>
+    <button @click="showRejectForm = false" class="btn btn-secondary ml-2">取消</button>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    `,
+        data() { return { application: null, showRejectForm: false, rejectComment: '' }; },
+        created() { this.loadApplication(); },
+        methods: {
+            loadApplication() { $api.application.getById(this.$route.params.id).then(res => { this.application = res.data; }).catch(err => console.error(err)); },
+            goBack() { window.location.hash = '/admin/applications'; },
+            approve() { if (confirm('确定要通过该申请吗？')) { $api.application.updateStatus(this.application.id, 'approved', '').then(() => this.loadApplication()).catch(err => alert('操作失败')); } },
+            reject() { if (!this.rejectComment.trim()) { alert('请输入拒绝理由'); return; } $api.application.updateStatus(this.application.id, 'rejected', this.rejectComment).then(() => { this.loadApplication(); this.showRejectForm = false; this.rejectComment = ''; }).catch(err => alert('操作失败')); },
+            formatDate(date) { if (!date) return ''; return new Date(date).toLocaleString('zh-CN'); },
+            logout() { $api.user.logout().then(() => { $user.clear(); window.location.hash = '/login'; window.location.reload(); }); }
+        }
+    };
+
+    // 路由配置
+    const router = new VueRouter({
+        mode: 'hash',
+        routes: [
+            { path: '/', component: Home },
+            { path: '/login', component: Login },
+            { path: '/register', component: Register },
+            { path: '/pets', component: PetList },
+            { path: '/pet/:id', component: PetDetail },
+            { path: '/apply/:petId', component: Apply },
+            { path: '/my-applications', component: MyApplications },
+            { path: '/profile', component: Profile },
+            { path: '/admin', component: AdminIndex },
+            { path: '/admin/users', component: AdminUsers },
+            { path: '/admin/pets', component: AdminPets },
+            { path: '/admin/pet-form/:id?', component: AdminPetForm },
+            { path: '/admin/applications', component: AdminApplications },
+            { path: '/admin/application/:id', component: AdminApplicationDetail }
+        ]
+    });
+
+    const app = new Vue({
+        router,
+        el: '#app'
+    });
+</script>
+</body>
+</html>

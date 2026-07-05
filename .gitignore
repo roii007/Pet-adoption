@@ -1,0 +1,33 @@
+# Maven build output
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Java compiled files
+*.class
+*.jar
+*.war
+
+# Logs
+*.log
+logs/
+
+# Upload files (local dev)
+uploads/
+src/main/webapp/uploads/
+
+# Environment-specific config (uncomment if needed)
+# src/main/resources/db.properties
